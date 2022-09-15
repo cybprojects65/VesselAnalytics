@@ -5,6 +5,8 @@ library(raster)
 library(dplyr)
 library(MASS)
 
+delete_points_in_ports=T
+
 t0<-Sys.time()
 
 inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
@@ -65,8 +67,8 @@ for (vid in fishing_vessels){
   dataVesselNewOrd$timediff_min<-as.numeric(difftime(dataVesselNewOrd$datetimeposix, time2, "GMT", units = c("mins")))
   #point classification
   dataVesselNewOrd$point_gap<-"unknown"
-  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=1440)]<-"new_track_start" #after 24h
-  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=31 & dataVesselNewOrd$timediff_min<1440)]<-"gap" #after 30 min
+  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=(20*60))]<-"new_track_start" #after 20h -> peak after the lowering of the gap density around 1h -> see distributionfit.R
+  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=31 & dataVesselNewOrd$timediff_min<(20*60))]<-"gap" #after 30 min
   dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min<31)]<-"clear" #after 30 min
   dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min==0)]<-"track_start" #after 30 min
   dataVesselNewOrd$datetime<-NULL
@@ -78,7 +80,7 @@ for (vid in fishing_vessels){
   #else
   # dataVessel_bb_fishing_vessels_gap<-rbind(dataVessel_bb_fishing_vessels_gap,dataVesselNewOrd)
   
-  cat("Processed ",counter,"vessels of",length(fishing_vessels)," :",round(counter*100/length(fishing_vessels)),"% \n" )
+  cat("Ordered ",counter,"vessels of",length(fishing_vessels)," :",round(counter*100/length(fishing_vessels)),"% \n" )
   
   vessel_list[[counter]]<-dataVesselNewOrd
   
@@ -94,8 +96,8 @@ test<-NA
 #harbors and ports taken from http://data.tools4msp.eu/layers/geonode:ports_harbor and exported into XY points with QGIS
 ports<-read.csv("ports_harbor_punctual.csv")
 
-#vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
-vessel_reconstructed<-sapply(1:1, function(counter){  
+vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
+  #vessel_reconstructed<-sapply(1:1, function(counter){  
   vid<- fishing_vessels[counter]
   
   dataVesselNewOrd<-vessel_list[[counter]] #dataVessel_bb_fishing_vessels_gap[dataVessel_bb_fishing_vessels_gap$vesselid==vid,]
@@ -169,14 +171,18 @@ vessel_reconstructed<-sapply(1:1, function(counter){
     dataVesselNewOrd <- ldply(list_of_gap_filled, data.frame)
     #reorder
     dataVesselNewOrd<-dataVesselNewOrd[order(dataVesselNewOrd$datetimeposix),]
-    test<<-dataVesselNewOrd
+    
   }#end if gaps are available
-  cat("Processed ",counter,"vessels of",length(fishing_vessels)," :",round(counter*100/length(fishing_vessels)),"% \n" )
+  
+  timeseq<-dataVesselNewOrd$datetimeposix
+  timeseq[2:length(timeseq)]<-dataVesselNewOrd$datetimeposix[1:dim(dataVesselNewOrd)[1]-1]
+  dataVesselNewOrd$timediff_hours_estimated<-as.numeric(difftime(dataVesselNewOrd$datetimeposix, timeseq, "GMT", units = c("hours")))
+  test<<-dataVesselNewOrd
+  
+  cat("Filled ",counter,"vessels of",length(fishing_vessels)," :",round(counter*100/length(fishing_vessels)),"% \n" )
   
   return(dataVesselNewOrd)
   #break
-  #counter=counter+1
-  
 }, simplify = F)
 
 dataVessel_reconstructed<-ldply(vessel_reconstructed, data.frame)
@@ -188,47 +194,68 @@ dataVessel_reconstructed$potentiallyfishing[-speeddistridx]<-"N"
 
 t11<-Sys.time()
 
-cat("Ordering Finished in\n")
+if (delete_points_in_ports){
+  cat("Deleting points in harbors\n")
+  
+  #out-harbor selection
+  xycentroids_comp<-data.frame(dataVessel_reconstructed$xcentroid, dataVessel_reconstructed$ycentroid)
+  xycentroids_comp$xy<-paste(xycentroids_comp$dataVessel_reconstructed.xcentroid,xycentroids_comp$dataVessel_reconstructed.ycentroid,sep=";")
+  xycentroids<-distinct(xycentroids_comp)
+  xycentroidstring<-unique(xycentroids_comp$xy)
+  
+  in_port<-sapply(1:dim(xycentroids)[1], function(i){
+    
+    row<-xycentroids[i,]
+    dx<-row$dataVessel_reconstructed.xcentroid-ports$X
+    dy<-row$dataVessel_reconstructed.ycentroid-ports$Y
+    
+    d<-sqrt((dx*dx)+(dy*dy))
+    
+    miles<-min(d)*111.1/1.852
+    if (miles<1.2)
+      return(T)
+    else
+      return(F)
+  },simplify = T)
+  
+  xycentroids_ports<-xycentroids[which(in_port),]
+  
+  idx_ports<-which(xycentroids_comp$xy %in% xycentroids_ports$xy)
+  
+  dataVessel_reconstructed<-dataVessel_reconstructed[-idx_ports,]
+  
+  
+}
+
+cat("Deleting ground points in\n")
+#depth refiltering
+fileBathy <- "http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
+cat("\taccessing bathymetry remote file\n")
+dat.multi<-suppressWarnings(brick(fileBathy))
+cat("\tretrieving centroid columns\n")
+idx_depth_na<-which(is.na(dataVessel_reconstructed$depth))
+xycentroids_comp<-data.frame(dataVessel_reconstructed$xcentroid, dataVessel_reconstructed$ycentroid)
+xycentroids_comp_na<-xycentroids_comp[idx_depth_na,]
+cat("\textracting bathymetry values for points\n")
+depths<-raster::extract(dat.multi[[1]], xycentroids_comp_na)
+dataVessel_reconstructed$depth[idx_depth_na]<-depths
+idx_depth_na<-which(is.na(dataVessel_reconstructed$depth))
+dataVessel_reconstructed<-dataVessel_reconstructed[-idx_depth_na,]
+
+cat("Ordering finished in\n")
 print(t01-t0)
 
-cat("Gap filling Finished in\n")
+cat("Gap filling finished in\n")
 print(t11-t01)
-
-cat("Gap filling Finished in\n")
-print(t11-t01)
-
-#out-harbor selection
-xycentroids_comp<-data.frame(dataVessel_reconstructed$xcentroid, dataVessel_reconstructed$ycentroid)
-xycentroids<-distinct(xycentroids_comp)
-
-in_port<-sapply(1:dim(xycentroids)[1], function(i){
-  
-  row<-xycentroids[i,]
-  dx<-row$dataVessel_reconstructed.xcentroid-ports$X
-  dy<-row$dataVessel_reconstructed.ycentroid-ports$Y
-  
-  d<-sqrt((dx*dx)+(dy*dy))
-  
-  miles<-min(d)*111.1/1.852
-  if (miles<1.5)
-    return(T)
-  else
-    return(F)
-},simplify = T)
-
-xycentroids_ports<-xycentroids[which(in_port),]
-idx_ports<-which( (xycentroids_comp$dataVessel_reconstructed.xcentroid %in% xycentroids_ports$dataVessel_reconstructed.xcentroid) & 
-                    (xycentroids_comp$dataVessel_reconstructed.ycentroid %in% xycentroids_ports$dataVessel_reconstructed.ycentroid))
-
-dataVessel_reconstructed<-dataVessel_reconstructed[-idx_ports,]
 
 t12<-Sys.time()
 
-cat("Out-harbor selection in in\n")
+cat("Out-harbor finished selection in\n")
 print(t12-t11)
 
+cat("Saving...\n")
 write.csv(dataVessel_reconstructed,file = gsub(".csv","_gap_filled.csv",inputTable),row.names = F)
-
+save(dataVessel_reconstructed, file = gsub(".csv","_gap_filled.Rdata",inputTable))
 
 
 t1<-Sys.time()
