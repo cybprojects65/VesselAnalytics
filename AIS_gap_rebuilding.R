@@ -74,14 +74,14 @@ for (vid in fishing_vessels){
   dataVesselNewOrd$time<-NULL
   #data frame accumulation
   #if (counter == 1)
-   # dataVessel_bb_fishing_vessels_gap<-dataVesselNewOrd
+  # dataVessel_bb_fishing_vessels_gap<-dataVesselNewOrd
   #else
-   # dataVessel_bb_fishing_vessels_gap<-rbind(dataVessel_bb_fishing_vessels_gap,dataVesselNewOrd)
+  # dataVessel_bb_fishing_vessels_gap<-rbind(dataVessel_bb_fishing_vessels_gap,dataVesselNewOrd)
   
   cat("Processed ",counter,"vessels of",length(fishing_vessels)," :",round(counter*100/length(fishing_vessels)),"% \n" )
   
   vessel_list[[counter]]<-dataVesselNewOrd
-    
+  
   counter<-counter+1
 }#end loop on vessels
 
@@ -90,9 +90,12 @@ t01<-Sys.time()
 cat("Reconstructing routes\n")
 dataVessel_reconstructed<-NA
 test<-NA
-  
-vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
-#vessel_reconstructed<-sapply(1:1, function(counter){  
+
+#harbors and ports taken from http://data.tools4msp.eu/layers/geonode:ports_harbor and exported into XY points with QGIS
+ports<-read.csv("ports_harbor_punctual.csv")
+
+#vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
+vessel_reconstructed<-sapply(1:1, function(counter){  
   vid<- fishing_vessels[counter]
   
   dataVesselNewOrd<-vessel_list[[counter]] #dataVessel_bb_fishing_vessels_gap[dataVessel_bb_fishing_vessels_gap$vesselid==vid,]
@@ -191,7 +194,42 @@ print(t01-t0)
 cat("Gap filling Finished in\n")
 print(t11-t01)
 
+cat("Gap filling Finished in\n")
+print(t11-t01)
+
+#out-harbor selection
+xycentroids_comp<-data.frame(dataVessel_reconstructed$xcentroid, dataVessel_reconstructed$ycentroid)
+xycentroids<-distinct(xycentroids_comp)
+
+in_port<-sapply(1:dim(xycentroids)[1], function(i){
+  
+  row<-xycentroids[i,]
+  dx<-row$dataVessel_reconstructed.xcentroid-ports$X
+  dy<-row$dataVessel_reconstructed.ycentroid-ports$Y
+  
+  d<-sqrt((dx*dx)+(dy*dy))
+  
+  miles<-min(d)*111.1/1.852
+  if (miles<1.5)
+    return(T)
+  else
+    return(F)
+},simplify = T)
+
+xycentroids_ports<-xycentroids[which(in_port),]
+idx_ports<-which( (xycentroids_comp$dataVessel_reconstructed.xcentroid %in% xycentroids_ports$dataVessel_reconstructed.xcentroid) & 
+                    (xycentroids_comp$dataVessel_reconstructed.ycentroid %in% xycentroids_ports$dataVessel_reconstructed.ycentroid))
+
+dataVessel_reconstructed<-dataVessel_reconstructed[-idx_ports,]
+
+t12<-Sys.time()
+
+cat("Out-harbor selection in in\n")
+print(t12-t11)
+
 write.csv(dataVessel_reconstructed,file = gsub(".csv","_gap_filled.csv",inputTable),row.names = F)
+
+
 
 t1<-Sys.time()
 
