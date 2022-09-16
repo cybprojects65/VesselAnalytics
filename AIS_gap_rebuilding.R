@@ -96,8 +96,8 @@ test<-NA
 #harbors and ports taken from http://data.tools4msp.eu/layers/geonode:ports_harbor and exported into XY points with QGIS
 ports<-read.csv("ports_harbor_punctual.csv")
 
-vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
-  #vessel_reconstructed<-sapply(1:1, function(counter){  
+#vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
+vessel_reconstructed<-sapply(1:1, function(counter){  
   vid<- fishing_vessels[counter]
   
   dataVesselNewOrd<-vessel_list[[counter]] #dataVessel_bb_fishing_vessels_gap[dataVessel_bb_fishing_vessels_gap$vesselid==vid,]
@@ -240,7 +240,9 @@ cat("\textracting bathymetry values for points\n")
 depths<-raster::extract(dat.multi[[1]], xycentroids_comp_na)
 dataVessel_reconstructed$depth[idx_depth_na]<-depths
 idx_depth_na<-which(is.na(dataVessel_reconstructed$depth))
-dataVessel_reconstructed<-dataVessel_reconstructed[-idx_depth_na,]
+if ((length(idx_depth_na)>0)){
+  dataVessel_reconstructed<-dataVessel_reconstructed[-idx_depth_na,]
+}
 
 cat("Ordering finished in\n")
 print(t01-t0)
