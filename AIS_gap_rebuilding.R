@@ -2,8 +2,10 @@
 rm(list=ls(all=TRUE))
 library(lubridate)
 library(raster)
+library(plyr)
 library(dplyr)
 library(MASS)
+library(ncdf4)
 
 delete_points_in_ports=T
 
@@ -229,7 +231,7 @@ if (delete_points_in_ports){
 
 cat("Deleting ground points in\n")
 #depth refiltering
-fileBathy <- "http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
+fileBathy <- "depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"#"http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
 cat("\taccessing bathymetry remote file\n")
 dat.multi<-suppressWarnings(brick(fileBathy))
 cat("\tretrieving centroid columns\n")

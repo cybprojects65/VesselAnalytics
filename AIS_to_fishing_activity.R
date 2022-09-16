@@ -51,7 +51,7 @@ dataVessel_bb$ycentroid<-round(dataVessel_bb$y,digits = 2)
 
 cat("3. adding the bathymetry information for each X and Y \n")
 
-fileBathy <- "http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
+fileBathy <- "depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"#"http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
 cat("\taccessing bathymetry remote file\n")
 dat.multi<-suppressWarnings(brick(fileBathy))
 cat("\tretrieving centroid columns\n")
