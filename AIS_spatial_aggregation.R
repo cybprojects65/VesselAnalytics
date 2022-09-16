@@ -30,11 +30,13 @@ unreported_cells$xy<-paste(unreported_cells$xcentroid,unreported_cells$ycentroid
 ratios<-sapply(1:length(xy), function(idx){
   xyc<-xy[idx]
   unrep_idx<-which(unreported_cells$xy==xyc)
+  th<-all_fishing_cells[idx,]$total_hours
   #if the cell exists in the unreported dataset do the ratio
   if (length(unrep_idx)>0){
-    ratio<-unreported_cells[unrep_idx,]$total_hours/ratio_all_fishing_cells[idx,]$total_hours
+    ur<-unreported_cells[unrep_idx,]$total_hours
+    ratio<-ur/th
   }else{
-    ratio<-1/ratio_all_fishing_cells[idx,]$total_hours
+    ratio<-0#1/ratio_all_fishing_cells[idx,]$total_hours
   }
   return (ratio)
 },simplify = T)
