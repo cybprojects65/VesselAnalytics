@@ -11,7 +11,7 @@ delete_points_in_ports=T
 
 t0<-Sys.time()
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_11.csv"
 load(file = gsub(".csv","_classified.Rdata",inputTable))
 
 cat("prefiltering\n")
@@ -69,8 +69,8 @@ for (vid in fishing_vessels){
   dataVesselNewOrd$timediff_min<-as.numeric(difftime(dataVesselNewOrd$datetimeposix, time2, "GMT", units = c("mins")))
   #point classification
   dataVesselNewOrd$point_gap<-"unknown"
-  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=(20*60))]<-"new_track_start" #after 20h -> peak after the lowering of the gap density around 1h -> see distributionfit.R
-  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=31 & dataVesselNewOrd$timediff_min<(20*60))]<-"gap" #after 30 min
+  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=(220))]<-"new_track_start" #after 20h -> peak after the lowering of the gap density around 1h -> see distributionfit.R
+  dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min>=31 & dataVesselNewOrd$timediff_min<(220))]<-"gap" #after 30 min
   dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min<31)]<-"clear" #after 30 min
   dataVesselNewOrd$point_gap[which(dataVesselNewOrd$timediff_min==0)]<-"track_start" #after 30 min
   dataVesselNewOrd$datetime<-NULL
@@ -231,7 +231,7 @@ if (delete_points_in_ports){
 
 cat("Deleting ground points in\n")
 #depth refiltering
-fileBathy <- "depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"#"http://thredds.d4science.org/thredds/dodsC/public/netcdf/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
+fileBathy <- "depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"#"C:/Users/lorenzo/Desktop/CNR/Illegal Fishing/R/depth_b2f62dfb-7b4b-428e-8601-4d1089308e14.nc"
 cat("\taccessing bathymetry remote file\n")
 dat.multi<-suppressWarnings(brick(fileBathy))
 cat("\tretrieving centroid columns\n")
