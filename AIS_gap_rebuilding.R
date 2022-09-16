@@ -96,8 +96,8 @@ test<-NA
 #harbors and ports taken from http://data.tools4msp.eu/layers/geonode:ports_harbor and exported into XY points with QGIS
 ports<-read.csv("ports_harbor_punctual.csv")
 
-#vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
-vessel_reconstructed<-sapply(1:1, function(counter){  
+vessel_reconstructed<-sapply(1:length(fishing_vessels), function(counter){
+#vessel_reconstructed<-sapply(1:1, function(counter){  
   vid<- fishing_vessels[counter]
   
   dataVesselNewOrd<-vessel_list[[counter]] #dataVessel_bb_fishing_vessels_gap[dataVessel_bb_fishing_vessels_gap$vesselid==vid,]
