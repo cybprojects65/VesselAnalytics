@@ -60,3 +60,49 @@ print(howmanyvessels)
 perc<-howmanyvessels*100/length(unique(dataVessel_bb_fishing_vessels$vesselid))
 print(perc)
 
+#fit lognormal to ratio of hours
+
+library(MASS)
+rat<-ratio_all_fishing_cells$ratio_unreported_total_hours[which(ratio_all_fishing_cells$ratio_unreported_total_hours>0)]
+
+fit_params <- fitdistr(rat,"lognormal")
+dr<-density(rat)
+
+x <- dr$x #seq(1,5,length=700)
+it <- dlnorm(x, fit_params$estimate['meanlog'], fit_params$estimate['sdlog'])
+upper_thr = exp(fit_params$estimate['meanlog']+1*fit_params$estimate['sdlog'])
+lower_thr = exp(fit_params$estimate['meanlog']-1*fit_params$estimate['sdlog'])
+
+cat(lower_thr,"<ratio<",upper_thr,"\n")
+plot(dr)
+lines(dr$x,it,type='l',col='red')
+abline(v=upper_thr)
+abline(v=lower_thr)
+
+r<-all_fishing_cells$total_hours[which(all_fishing_cells$total_hours>0)]
+fit_params <- fitdistr(r,"lognormal")
+dr<-density(r)
+x <- dr$x
+it <- dlnorm(x, fit_params$estimate['meanlog'], fit_params$estimate['sdlog'])
+upper_thr = exp(fit_params$estimate['meanlog']+1*fit_params$estimate['sdlog'])
+lower_thr = exp(fit_params$estimate['meanlog']-1*fit_params$estimate['sdlog'])
+cat(lower_thr,"<hours<",upper_thr,"\n")
+plot(dr)
+lines(dr$x,it,type='l',col='red')
+abline(v=upper_thr)
+abline(v=lower_thr)
+
+
+r<-reported_cells$total_hours[which(reported_cells$total_hours>0)]
+fit_params <- fitdistr(r,"lognormal")
+dr<-density(r)
+x <- dr$x[which(dr$x<30)]
+it <- dlnorm(x, fit_params$estimate['meanlog'], fit_params$estimate['sdlog'])
+upper_thr = exp(fit_params$estimate['meanlog']+1*fit_params$estimate['sdlog'])
+lower_thr = exp(fit_params$estimate['meanlog']-1*fit_params$estimate['sdlog'])
+cat(lower_thr,"<hours<",upper_thr,"\n")
+plot(x,dr$y[1:length(x)],type='l')
+lines(x,it,type='l',col='red')
+abline(v=upper_thr)
+abline(v=lower_thr)
+

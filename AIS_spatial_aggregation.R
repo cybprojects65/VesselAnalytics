@@ -69,21 +69,27 @@ ul_ratio<-calc_intensity_ranges(ratio_all_fishing_cells$ratio_unreported_total_h
 ratio_all_fishing_cells$intensity<-"medium"
 ratio_all_fishing_cells$intensity[which(ratio_all_fishing_cells$ratio_unreported_total_hours<ul_ratio[1])]<-"low"
 ratio_all_fishing_cells$intensity[which(ratio_all_fishing_cells$ratio_unreported_total_hours>ul_ratio[2])]<-"high"
+cat(ul_ratio[1],"<ratio<",ul_ratio[2],"\n")
 
 tot_hours<-calc_intensity_ranges(all_fishing_cells$total_hours)
 all_fishing_cells$intensity<-"medium"
 all_fishing_cells$intensity[which(all_fishing_cells$total_hours<tot_hours[1])]<-"low"
 all_fishing_cells$intensity[which(all_fishing_cells$total_hours>tot_hours[2])]<-"high"
+cat(tot_hours[1],"<total hours<",tot_hours[2],"\n")
 
 u_hours<-calc_intensity_ranges(unreported_cells$total_hours)
 unreported_cells$intensity<-"medium"
 unreported_cells$intensity[which(unreported_cells$total_hours<u_hours[1])]<-"low"
 unreported_cells$intensity[which(unreported_cells$total_hours>u_hours[2])]<-"high"
 
+cat(u_hours[1],"<unreported hours<",u_hours[2],"\n")
+
 r_hours<-calc_intensity_ranges(reported_cells$total_hours)
 reported_cells$intensity<-"medium"
 reported_cells$intensity[which(reported_cells$total_hours<r_hours[1])]<-"low"
 reported_cells$intensity[which(reported_cells$total_hours>r_hours[2])]<-"high"
+
+cat(r_hours[1],"<reported hours<",r_hours[2],"\n")
 
 #save all data
 write.csv(ratio_all_fishing_cells,file = gsub(".csv","_ratio_cells.csv",inputTable),row.names = F)

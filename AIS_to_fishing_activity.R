@@ -41,7 +41,18 @@ bbx0=12.2
 bbx1=19.6
 bby0=40.2
 bby1=46
+bx2<-17.820077215541005
+bx1<-10.934812459263048
+by2<-39.42654592951941
+by1<-43.393009920210915
+
+
+m_bb<-(by2-by1)/(bx2-bx1)
+q_bb<-((bx2*by1)-(bx1*by2))/(bx2-bx1)
+
 dataVessel_bb<-subset(dataVessel, (x >=bbx0  & x <= bbx1 & y >= bby0 & y<=bby1))
+dataVessel_bb<-dataVessel_bb[which(dataVessel_bb$y>((dataVessel_bb$x*m_bb)+q_bb)),]
+
 rm(dataVessel)
 
 cat("2. downsampling to resolution")
@@ -78,7 +89,7 @@ dataVessel_bb$fishing_activity[which(dataVessel_bb$speed>4)]<-"Steaming"
 cat("5. selecting only trawling vessels\n")
 fishing_vessels<-unique(
   dataVessel_bb$vesselid[ which( (dataVessel_bb$fishing_activity=="Trawling") | (dataVessel_bb$fishing_activity=="Midwater-Trawling") ) ]
-  )
+)
 
 dataVessel_bb_fishing_vessels<-dataVessel_bb[which(dataVessel_bb$vesselid %in% fishing_vessels),]
 
