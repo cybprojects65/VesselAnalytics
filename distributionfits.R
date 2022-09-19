@@ -46,7 +46,7 @@ fishingtrajectories<-sqldf(paste0("select vesselid, count(fishing_activity) as c
 densfish<-density(fishingtrajectories$c_act)
 plot(densfish)
 plot(densfish$x,densfish$y,type='l')
-threshold<-1000
+threshold<-154
 plot(densfish$x[which(densfish$x<threshold)],densfish$y[which(densfish$x<threshold)],type='l')
 abline(v=densfish$x[which(densfish$y==max(densfish$y))])
 abline(v=200)

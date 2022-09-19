@@ -50,6 +50,41 @@ infinite_cells<-which(is.infinite(ratio_all_fishing_cells$ratio_unreported_total
 if (length(infinite_cells)>0){
   ratio_all_fishing_cells<-ratio_all_fishing_cells[-which(is.infinite(ratio_all_fishing_cells$ratio_unreported_total_hours)),]
 }
+
+#classification of the ranges:
+calc_intensity_ranges<-function(hours){
+
+  vec<-hours[which(hours>0)]
+  fit_params <- fitdistr(vec,"lognormal")
+  dr<-density(vec)
+  x <- dr$x
+  it <- dlnorm(x, fit_params$estimate['meanlog'], fit_params$estimate['sdlog'])
+  upper_thr = exp(fit_params$estimate['meanlog']+1*fit_params$estimate['sdlog'])
+  lower_thr = exp(fit_params$estimate['meanlog']-1*fit_params$estimate['sdlog'])
+  return (c(lower_thr,upper_thr))
+    
+}
+
+ul_ratio<-calc_intensity_ranges(ratio_all_fishing_cells$ratio_unreported_total_hours)
+ratio_all_fishing_cells$intensity<-"medium"
+ratio_all_fishing_cells$intensity[which(ratio_all_fishing_cells$ratio_unreported_total_hours<ul_ratio[1])]<-"low"
+ratio_all_fishing_cells$intensity[which(ratio_all_fishing_cells$ratio_unreported_total_hours>ul_ratio[2])]<-"high"
+
+tot_hours<-calc_intensity_ranges(all_fishing_cells$total_hours)
+all_fishing_cells$intensity<-"medium"
+all_fishing_cells$intensity[which(all_fishing_cells$total_hours<tot_hours[1])]<-"low"
+all_fishing_cells$intensity[which(all_fishing_cells$total_hours>tot_hours[2])]<-"high"
+
+u_hours<-calc_intensity_ranges(unreported_cells$total_hours)
+unreported_cells$intensity<-"medium"
+unreported_cells$intensity[which(unreported_cells$total_hours<u_hours[1])]<-"low"
+unreported_cells$intensity[which(unreported_cells$total_hours>u_hours[2])]<-"high"
+
+r_hours<-calc_intensity_ranges(reported_cells$total_hours)
+reported_cells$intensity<-"medium"
+reported_cells$intensity[which(reported_cells$total_hours<r_hours[1])]<-"low"
+reported_cells$intensity[which(reported_cells$total_hours>r_hours[2])]<-"high"
+
 #save all data
 write.csv(ratio_all_fishing_cells,file = gsub(".csv","_ratio_cells.csv",inputTable),row.names = F)
 write.csv(unreported_cells,file = gsub(".csv","_unreported_fishing_cells.csv",inputTable),row.names = F)
