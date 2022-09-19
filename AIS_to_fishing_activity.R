@@ -10,6 +10,7 @@ library(sqldf)
 library(cowplot)
 library(ggplot2)
 library(DT)
+library(sqldf)
 
 ##input data
 cat("1. reading file (can take some minutes) \n")
@@ -80,6 +81,13 @@ fishing_vessels<-unique(
   )
 
 dataVessel_bb_fishing_vessels<-dataVessel_bb[which(dataVessel_bb$vesselid %in% fishing_vessels),]
+
+fishing_trajectories_per_vessel<-sqldf(paste0("select vesselid, count(fishing_activity) as c_act from dataVessel_bb_fishing_vessels where fishing_activity='Trawling' OR fishing_activity='Midwater-Trawling' group by vesselid"),drv="SQLite")
+densfish<-density(fishing_trajectories_per_vessel$c_act)
+threshold_for_vessels<-round(densfish$x[which(densfish$y==max(densfish$y))]) #max of the low density of fishing vessels' fishing points
+cat("Minimum number of fishing locations to include a vessel in the analysis:",threshold_for_vessels,"\n")
+really_fishing_vessels<-fishing_trajectories_per_vessel[which(fishing_trajectories_per_vessel$c_act>threshold_for_vessels),]$vesselid 
+dataVessel_bb_fishing_vessels<-dataVessel_bb_fishing_vessels[which(dataVessel_bb_fishing_vessels$vesselid %in% really_fishing_vessels),]
 
 cat("6. saving\n")
 save(dataVessel_bb_fishing_vessels, file = gsub(".csv","_classified.Rdata",inputTable))

@@ -39,4 +39,24 @@ dens<-density(hdistr)
 max<-dens$x[which(dens$y == max(dens$y))]
 plot(density(hdistr))
 
+#searching for sensitive number of boats:
+
+library(sqldf)
+fishingtrajectories<-sqldf(paste0("select vesselid, count(fishing_activity) as c_act from dataVessel_bb_fishing_vessels where fishing_activity='Trawling' OR fishing_activity='Midwater-Trawling' group by vesselid"),drv="SQLite")
+densfish<-density(fishingtrajectories$c_act)
+plot(densfish)
+plot(densfish$x,densfish$y,type='l')
+threshold<-500
+plot(densfish$x[which(densfish$x<threshold)],densfish$y[which(densfish$x<threshold)],type='l')
+abline(v=densfish$x[which(densfish$y==max(densfish$y))])
+abline(v=200)
+abline(v=300)
+abline(v=400)
+abline(v=500)
+plot(densfish$x[which(densfish$x>=threshold)],densfish$y[which(densfish$x>=threshold)],type='l')
+
+howmanyvessels<-length(which(fishingtrajectories$c_act>threshold))
+print(howmanyvessels)
+perc<-howmanyvessels*100/length(unique(dataVessel_bb_fishing_vessels$vesselid))
+print(perc)
 

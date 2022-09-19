@@ -11,7 +11,7 @@ delete_points_in_ports=T
 
 t0<-Sys.time()
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_11.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
 load(file = gsub(".csv","_classified.Rdata",inputTable))
 
 cat("prefiltering\n")
@@ -260,7 +260,6 @@ print(t12-t11)
 cat("Saving...\n")
 write.csv(dataVessel_reconstructed,file = gsub(".csv","_gap_filled.csv",inputTable),row.names = F)
 save(dataVessel_reconstructed, file = gsub(".csv","_gap_filled.Rdata",inputTable))
-
 
 t1<-Sys.time()
 
