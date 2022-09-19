@@ -44,9 +44,14 @@ plot(density(hdistr))
 library(sqldf)
 fishingtrajectories<-sqldf(paste0("select vesselid, count(fishing_activity) as c_act from dataVessel_bb_fishing_vessels where fishing_activity='Trawling' OR fishing_activity='Midwater-Trawling' group by vesselid"),drv="SQLite")
 densfish<-density(fishingtrajectories$c_act)
-plot(densfish)
+densfish<-data.frame(x=densfish$x,y=densfish$y)
+densfish<-densfish[which(densfish$x<1000),]
 plot(densfish$x,densfish$y,type='l')
-threshold<-154
+abline(v=densfish$x[which(densfish$y==max(densfish$y))])
+
+plot(densfish$x,densfish$y,type='l')
+threshold<-densfish$x[which(densfish$y==max(densfish$y))]
+cat("threshold",threshold,"\n")
 plot(densfish$x[which(densfish$x<threshold)],densfish$y[which(densfish$x<threshold)],type='l')
 abline(v=densfish$x[which(densfish$y==max(densfish$y))])
 abline(v=200)
