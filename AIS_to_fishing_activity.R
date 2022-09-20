@@ -13,7 +13,7 @@ library(DT)
 library(sqldf)
 
 ##input data
-cat("1. reading file (can take some minutes) \n")
+cat("1. reading file (could take some minutes) \n")
 
 inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
 dataVessel<-read.csv(inputTable,header=T,sep=",")
