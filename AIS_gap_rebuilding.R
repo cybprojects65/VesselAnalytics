@@ -247,6 +247,8 @@ if ((length(idx_depth_na)>0)){
   dataVessel_reconstructed<-dataVessel_reconstructed[-idx_depth_na,]
 }
 
+cat("vessel fishing speed boundaries :",lower_speed_thr,"<speed_logit<",upper_speed_thr,"\n")
+
 cat("Ordering finished in\n")
 print(t01-t0)
 
