@@ -11,7 +11,8 @@ delete_points_in_ports=T
 
 t0<-Sys.time()
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+#inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_06.csv"
 load(file = gsub(".csv","_classified.Rdata",inputTable))
 
 cat("prefiltering\n")
@@ -245,6 +246,8 @@ idx_depth_na<-which(is.na(dataVessel_reconstructed$depth))
 if ((length(idx_depth_na)>0)){
   dataVessel_reconstructed<-dataVessel_reconstructed[-idx_depth_na,]
 }
+
+cat("vessel fishing speed boundaries :",lower_speed_thr,"<speed_logit<",upper_speed_thr,"\n")
 
 cat("Ordering finished in\n")
 print(t01-t0)

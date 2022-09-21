@@ -15,7 +15,8 @@ library(sqldf)
 ##input data
 cat("1. reading file (could take some minutes) \n")
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+#inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_06.csv"
 dataVessel<-read.csv(inputTable,header=T,sep=",")
 
 xcolumn<-"LONGITUDE"
@@ -101,7 +102,7 @@ densfish<-densfish[which(densfish$x<1000),]
 threshold_for_vessels<-round(densfish$x[which(densfish$y==max(densfish$y))]) #max of the low density of fishing vessels' fishing points
 cat("Minimum number of fishing locations to include a vessel in the analysis:",threshold_for_vessels,"\n")
 really_fishing_vessels<-fishing_trajectories_per_vessel[which(fishing_trajectories_per_vessel$c_act>threshold_for_vessels),]$vesselid 
-cat("Number of fishing vessels to include:",length(really_fishing_vessels),"\n")
+cat("Number of fishing vessels to include:",length(really_fishing_vessels),"over",length(unique(dataVessel_bb$vesselid)),"(",length(really_fishing_vessels)*100/length(unique(dataVessel_bb$vesselid)),"%)\n")
 dataVessel_bb_fishing_vessels<-dataVessel_bb_fishing_vessels[which(dataVessel_bb_fishing_vessels$vesselid %in% really_fishing_vessels),]
 
 cat("6. saving\n")
