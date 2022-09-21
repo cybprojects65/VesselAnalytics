@@ -11,7 +11,8 @@ delete_points_in_ports=T
 
 t0<-Sys.time()
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+#inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_06.csv"
 load(file = gsub(".csv","_classified.Rdata",inputTable))
 
 cat("prefiltering\n")

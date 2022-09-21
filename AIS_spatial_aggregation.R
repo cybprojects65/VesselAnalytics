@@ -2,7 +2,8 @@ rm(list=ls(all=TRUE))
 library(sqldf)
 library(lubridate)
 
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+#inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_06.csv"
 load(file = gsub(".csv","_gap_filled.Rdata",inputTable))
 
 #extract fishing activity subsets based on labels
