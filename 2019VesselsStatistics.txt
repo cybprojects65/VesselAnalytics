@@ -1,0 +1,59 @@
+January 2019
+Minimum number of fishing locations to include a vessel in the analysis: 148 
+Number of fishing vessels to include: 469 over 689 ( 68.06967 %)
+vessel fishing speed boundaries : 1.978008 <speed_logit< 4.645795
+
+February 2019
+Minimum number of fishing locations to include a vessel in the analysis: 113 
+Number of fishing vessels to include: 507 over 742 ( 68.32884 %)
+vessel fishing speed boundaries : 1.854812 <speed_logit< 4.677882 
+
+March 2019
+Minimum number of fishing locations to include a vessel in the analysis: 97 
+Number of fishing vessels to include: 512 over 768 ( 66.66667 %)
+vessel fishing speed boundaries : 1.961231 <speed_logit< 4.622046
+
+April 2019
+Minimum number of fishing locations to include a vessel in the analysis: 100 
+Number of fishing vessels to include: 543 over 803 ( 67.62142 %)
+vessel fishing speed boundaries : 1.922649 <speed_logit< 4.63093 
+
+May 2019
+Minimum number of fishing locations to include a vessel in the analysis: 105 
+Number of fishing vessels to include: 506 over 771 ( 65.62905 %)
+vessel fishing speed boundaries : 1.890907 <speed_logit< 4.577261
+
+June 2019
+Minimum number of fishing locations to include a vessel in the analysis: 135 
+Number of fishing vessels to include: 531 over 792 ( 67.04545 %)
+vessel fishing speed boundaries : 1.83843 <speed_logit< 4.541289
+
+July 2019
+Minimum number of fishing locations to include a vessel in the analysis: 97 
+Number of fishing vessels to include: 541 over 805 ( 67.20497 %)
+vessel fishing speed boundaries : 1.904552 <speed_logit< 4.564249 
+
+August 2019
+Minimum number of fishing locations to include a vessel in the analysis: 49 
+Number of fishing vessels to include: 318 over 640 ( 49.6875 %)
+vessel fishing speed boundaries : 1.683806 <speed_logit< 4.424385
+
+September 2019
+Minimum number of fishing locations to include a vessel in the analysis: 92 
+Number of fishing vessels to include: 547 over 798 ( 68.54637 %)
+vessel fishing speed boundaries : 1.848378 <speed_logit< 4.641819
+
+October 2019
+Minimum number of fishing locations to include a vessel in the analysis: 114 
+Number of fishing vessels to include: 539 over 795 ( 67.79874 %)
+vessel fishing speed boundaries : 1.970929 <speed_logit< 4.612372 
+
+November 2019
+Minimum number of fishing locations to include a vessel in the analysis: 86 
+Number of fishing vessels to include: 527 over 788 ( 66.87817 %)
+vessel fishing speed boundaries : 1.961064 <speed_logit< 4.622356 
+
+December 2019
+Minimum number of fishing locations to include a vessel in the analysis: 105 
+Number of fishing vessels to include: 514 over 802 ( 64.08978 %)
+vessel fishing speed boundaries : 1.942677 <speed_logit< 4.639379 
