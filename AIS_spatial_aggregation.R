@@ -2,8 +2,7 @@ rm(list=ls(all=TRUE))
 library(sqldf)
 library(lubridate)
 
-#inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
-inputTable<-"Med-region-5min-Fishing-vessels-2019_06.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_01.csv"
 load(file = gsub(".csv","_gap_filled.Rdata",inputTable))
 
 #extract fishing activity subsets based on labels
@@ -91,6 +90,34 @@ reported_cells$intensity[which(reported_cells$total_hours<r_hours[1])]<-"low"
 reported_cells$intensity[which(reported_cells$total_hours>r_hours[2])]<-"high"
 
 cat(r_hours[1],"<reported hours<",r_hours[2],"\n")
+
+
+
+#intensity classification normalised on Max Ul1 between months
+
+ul_ratio<-calc_intensity_ranges(ratio_all_fishing_cells$ratio_unreported_total_hours)
+ratio_all_fishing_cells$intensity_normalised<-"medium"
+ratio_all_fishing_cells$intensity_normalised[which(ratio_all_fishing_cells$ratio_unreported_total_hours<0.0693245)]<-"low"
+ratio_all_fishing_cells$intensity_normalised[which(ratio_all_fishing_cells$ratio_unreported_total_hours>0.5039603)]<-"high"
+
+
+tot_hours<-calc_intensity_ranges(all_fishing_cells$total_hours)
+all_fishing_cells$intensity_normalised<-"medium"
+all_fishing_cells$intensity_normalised[which(all_fishing_cells$total_hours<0.2685877)]<-"low"
+all_fishing_cells$intensity_normalised[which(all_fishing_cells$total_hours>2.55176)]<-"high"
+
+
+u_hours<-calc_intensity_ranges(unreported_cells$total_hours)
+unreported_cells$intensity_normalised<-"medium"
+unreported_cells$intensity_normalised[which(unreported_cells$total_hours<0.1003729)]<-"low"
+unreported_cells$intensity_normalised[which(unreported_cells$total_hours>0.4465267)]<-"high"
+
+
+r_hours<-calc_intensity_ranges(reported_cells$total_hours)
+reported_cells$intensity_normalised<-"medium"
+reported_cells$intensity_normalised[which(reported_cells$total_hours<0.2641011)]<-"low"
+reported_cells$intensity_normalised[which(reported_cells$total_hours>2.486207)]<-"high"
+
 
 #save all data
 write.csv(ratio_all_fishing_cells,file = gsub(".csv","_ratio_cells.csv",inputTable),row.names = F)
