@@ -95,28 +95,68 @@ cat(r_hours[1],"<reported hours<",r_hours[2],"\n")
 
 #intensity classification normalised on Max Ul1 between months
 
+#August range
 ul_ratio<-calc_intensity_ranges(ratio_all_fishing_cells$ratio_unreported_total_hours)
 ratio_all_fishing_cells$intensity_normalised<-"medium"
 ratio_all_fishing_cells$intensity_normalised[which(ratio_all_fishing_cells$ratio_unreported_total_hours<0.0693245)]<-"low"
 ratio_all_fishing_cells$intensity_normalised[which(ratio_all_fishing_cells$ratio_unreported_total_hours>0.5039603)]<-"high"
 
-
+#April range
 tot_hours<-calc_intensity_ranges(all_fishing_cells$total_hours)
 all_fishing_cells$intensity_normalised<-"medium"
 all_fishing_cells$intensity_normalised[which(all_fishing_cells$total_hours<0.2685877)]<-"low"
 all_fishing_cells$intensity_normalised[which(all_fishing_cells$total_hours>2.55176)]<-"high"
 
-
+#December range
 u_hours<-calc_intensity_ranges(unreported_cells$total_hours)
 unreported_cells$intensity_normalised<-"medium"
 unreported_cells$intensity_normalised[which(unreported_cells$total_hours<0.1003729)]<-"low"
 unreported_cells$intensity_normalised[which(unreported_cells$total_hours>0.4465267)]<-"high"
 
-
+#April range
 r_hours<-calc_intensity_ranges(reported_cells$total_hours)
 reported_cells$intensity_normalised<-"medium"
 reported_cells$intensity_normalised[which(reported_cells$total_hours<0.2641011)]<-"low"
 reported_cells$intensity_normalised[which(reported_cells$total_hours>2.486207)]<-"high"
+
+
+
+#Intensity Categorisation
+ratio_all_fishing_cells$catint<-"1"
+ratio_all_fishing_cells$catint[which(ratio_all_fishing_cells$intensity=="low")]<-0
+ratio_all_fishing_cells$catint[which(ratio_all_fishing_cells$intensity=="high")]<-2
+
+all_fishing_cells$catint<-"1"
+all_fishing_cells$catint[which(all_fishing_cells$intensity=="low")]<-0
+all_fishing_cells$catint[which(all_fishing_cells$intensity=="high")]<-2
+
+unreported_cells$catint<-"1"
+unreported_cells$catint[which(unreported_cells$intensity=="low")]<-0
+unreported_cells$catint[which(unreported_cells$intensity=="high")]<-2
+
+reported_cells$catint<-"1"
+reported_cells$catint[which(reported_cells$intensity=="low")]<-0
+reported_cells$catint[which(reported_cells$intensity=="high")]<-2
+
+#Intensity_normalised Categorisation
+ratio_all_fishing_cells$catintnorm<-"1"
+ratio_all_fishing_cells$catintnorm[which(ratio_all_fishing_cells$intensity_normalised=="low")]<-0
+ratio_all_fishing_cells$catintnorm[which(ratio_all_fishing_cells$intensity_normalised=="high")]<-2
+
+all_fishing_cells$catintnorm<-"1"
+all_fishing_cells$catintnorm[which(all_fishing_cells$intensity_normalised=="low")]<-0
+all_fishing_cells$catintnorm[which(all_fishing_cells$intensity_normalised=="high")]<-2
+
+unreported_cells$catintnorm<-"1"
+unreported_cells$catintnorm[which(unreported_cells$intensity_normalised=="low")]<-0
+unreported_cells$catintnorm[which(unreported_cells$intensity_normalised=="high")]<-2
+
+reported_cells$catintnorm<-"1"
+reported_cells$catintnorm[which(reported_cells$intensity_normalised=="low")]<-0
+reported_cells$catintnorm[which(reported_cells$intensity_normalised=="high")]<-2
+
+
+
 
 
 #save all data
