@@ -491,7 +491,7 @@ boundingbox = paste0("POLYGON ((",
 xseq<-seq(from=min_x_in_raster,to=max_x_in_raster,by=resolution)
 yseq<-seq(from=min_y_in_raster,to=max_y_in_raster,by=resolution)
 grid_of_points<-expand.grid(x = xseq, y = yseq)#combine the x and y coordinate to generate pairs
-grid_values<-extract(x=r,y=grid_of_points,method='simple')
+grid_values<-raster::extract(x=r,y=grid_of_points,method='simple')
 grid_of_points$values<-grid_values
 if (length(which(is.na(grid_of_points$values)))>0)
   grid_of_points<-grid_of_points[-which(is.na(grid_of_points$values)),]
@@ -563,7 +563,7 @@ stocks_observed_df$is_threatened[which(stocks_observed %in% stocks_redlist)]<-T
 cat("Saving stock and ETP species information\n")
 write.csv(stocks_observed_df,file = gsub(".csv","_stocks_and_ETP_status.csv",outputTable),row.names = F)
 
-cat("Zipping\n")
+cat("Zipping output to",outputZip,"\n")
 files2zip <- dir(outputFolder, full.names = TRUE)
 zip(zipfile = outputZip, files = files2zip)
 
