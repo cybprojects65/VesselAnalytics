@@ -364,16 +364,13 @@ unreported_cells<-unreported_cells[,-which(names(unreported_cells) == "xy")]
 cat("Calculating classifying aggregations\n")
 #classification of the ranges:
 calc_intensity_ranges<-function(hours){
-  
-  vec<-hours[which(hours>0)]
-  fit_params <- fitdistr(vec,"lognormal")
-  dr<-density(vec)
-  x <- dr$x
-  it <- dlnorm(x, fit_params$estimate['meanlog'], fit_params$estimate['sdlog'])
-  upper_thr = exp(fit_params$estimate['meanlog']+1*fit_params$estimate['sdlog'])
-  lower_thr = exp(fit_params$estimate['meanlog']-1*fit_params$estimate['sdlog'])
+  hours<-hours[which(hours>0)]
+  mean.log  <- mean(log(hours))
+  sd.log    <- sd(log(hours))
+  gm<-exp(mean.log)
+  lower_thr<-exp(mean.log-1*sd.log)
+  upper_thr<-exp(mean.log+1*sd.log)
   return (c(lower_thr,upper_thr))
-  
 }
 
 
@@ -387,7 +384,7 @@ ratio_all_fishing_cells$intensity[which(ratio_all_fishing_cells$ratio_unreported
 ratio_all_fishing_cells$intensity_int<-1
 ratio_all_fishing_cells$intensity_int[which(ratio_all_fishing_cells$ratio_unreported_total_hours<ul_ratio[1])]<-0
 ratio_all_fishing_cells$intensity_int[which(ratio_all_fishing_cells$ratio_unreported_total_hours>ul_ratio[2])]<-2
-cat(ul_ratio[1],"<ratio<",ul_ratio[2],"\n")
+cat("\t",ul_ratio[1],"<ratio<",ul_ratio[2],"\n")
 
 if (!external_defined_classification){
   tot_hours<-calc_intensity_ranges(all_fishing_cells$total_hours)
@@ -399,7 +396,7 @@ all_fishing_cells$intensity[which(all_fishing_cells$total_hours>tot_hours[2])]<-
 all_fishing_cells$intensity_int<-1
 all_fishing_cells$intensity_int[which(all_fishing_cells$total_hours<tot_hours[1])]<-0
 all_fishing_cells$intensity_int[which(all_fishing_cells$total_hours>tot_hours[2])]<-2
-cat(tot_hours[1],"<total hours<",tot_hours[2],"\n")
+cat("\t",tot_hours[1],"<total hours<",tot_hours[2],"\n")
 
 if (!external_defined_classification){
   u_hours<-calc_intensity_ranges(unreported_cells$total_hours)
@@ -411,7 +408,7 @@ unreported_cells$intensity[which(unreported_cells$total_hours>u_hours[2])]<-"hig
 unreported_cells$intensity_int<-1
 unreported_cells$intensity_int[which(unreported_cells$total_hours<u_hours[1])]<-0
 unreported_cells$intensity_int[which(unreported_cells$total_hours>u_hours[2])]<-2
-cat(u_hours[1],"<unreported hours<",u_hours[2],"\n")
+cat("\t",u_hours[1],"<unreported hours<",u_hours[2],"\n")
 
 if (!external_defined_classification){
   r_hours<-calc_intensity_ranges(reported_cells$total_hours)
@@ -423,7 +420,7 @@ reported_cells$intensity[which(reported_cells$total_hours>r_hours[2])]<-"high"
 reported_cells$intensity_int<-1
 reported_cells$intensity_int[which(reported_cells$total_hours<r_hours[1])]<-0
 reported_cells$intensity_int[which(reported_cells$total_hours>r_hours[2])]<-2
-cat(r_hours[1],"<reported hours<",r_hours[2],"\n")
+cat("\t",r_hours[1],"<reported hours<",r_hours[2],"\n")
 
 
 cat("Saving aggregations\n")
