@@ -18,6 +18,12 @@ library(ncdf4)
 library(robis)
 library(zip)
 
+status<-function(stat){
+  fileConn<-file("status.txt")
+  writeLines(paste0(stat), fileConn)
+  close(fileConn)
+}
+
 #input
 inputTable<-"Med-region-5min-Fishing-vessels-2019_01_prepared.csv"
 xcolumn<-"x"
@@ -45,12 +51,14 @@ outputZip<-"vessel_analysis.zip"
 
 if (!dir.exists(outputFolder))
   dir.create(outputFolder)
-outputTable<-paste0(outputFolder,"/",inputTable)
+outputTable<-paste0(outputFolder,"/",basename(inputTable))
 
 #input data preprocessing
 cat("###DATA PREPROCESSING\n")
 cat("Reading file (could take some minutes) \n")
 dataVessel<-read.csv(inputTable,header=T,sep=",")
+
+status(5)
 
 cat("\tExtracting required columns\n")
 names(dataVessel)[names(dataVessel) == xcolumn] <- "x"
@@ -149,7 +157,7 @@ if (length(which(in_port))>0){
 
 cat("Saving cleaned file\n")
 write.csv(dataVessel,file = gsub(".csv","_cleaned_and_preclassified.csv",outputTable),row.names = F)
-
+status(10)
 #vessel activity classification
 cat("###Classifying fishing activity by prior speed range\n")
 cat("Revising prior speed range\n")
@@ -204,7 +212,7 @@ for (vid in fishing_vessels){
   time2[2:length(time2)]<-dataVessel_vid$datetimeposix[1:dim(dataVessel_vid)[1]-1]
   dataVessel_vid$timediff_min<-as.numeric(difftime(dataVessel_vid$datetimeposix, time2, "GMT", units = c("mins")))
   min_time_diff<-mean(dataVessel_vid$timediff_min[which(dataVessel_vid$timediff_min<min_minutes_gap & dataVessel_vid$timediff_min>0)])
-  if (min_time_diff<sampling_period)
+  if (!is.nan(min_time_diff) && (min_time_diff<sampling_period) )
     sampling_period<-min_time_diff
 
     #point classification
@@ -308,7 +316,7 @@ dataVessel<-ldply(vessel_reconstructed, data.frame)
 
 cat("Saving gap filled and classified files\n")
 write.csv(dataVessel,file = gsub(".csv","_gap_filled.csv",outputTable),row.names = F)
-
+status(50)
 #data aggregation
 cat("###Data aggregation\n")
 cat("Extracting unreported, reported, and total fishing points\n")
@@ -368,6 +376,7 @@ calc_intensity_ranges<-function(hours){
   
 }
 
+
 if (!external_defined_classification){
   ul_ratio<-calc_intensity_ranges(ratio_all_fishing_cells$ratio_unreported_total_hours)
 }
@@ -422,7 +431,7 @@ write.csv(ratio_all_fishing_cells,file = gsub(".csv","_ratio_cells.csv",outputTa
 write.csv(unreported_cells,file = gsub(".csv","_unreported_fishing_cells.csv",outputTable),row.names = F)
 write.csv(reported_cells,file = gsub(".csv","_reported_fishing_cells.csv",outputTable),row.names = F)
 write.csv(all_fishing_cells,file = gsub(".csv","_total_fishing_cells.csv",outputTable),row.names = F)
-
+status(70)
 #heatmap production
 cat("###Hotspot production at",res_heatmap,"deg resolution\n")
 cat("Selecting highly unreported locations\n")
@@ -468,7 +477,7 @@ r_categorised[ (
 
 cat("Saving unreported activity hotspots\n")
 writeRaster(r_categorised,filename = gsub(".csv","_unreported_fishing_hotspots_categorised.tiff",outputTable),overwrite=T)
-
+status(80)
 ##Stock and ETP species retrieval
 
 cat("###Stock and ETP extraction\n")
@@ -503,7 +512,7 @@ FAOlist<-read.delim("ASFIS_sp_2022_geom.txt",header=T,sep=",",encoding="UTF-8")
 FAOlist<-FAOlist[,c("TAXOCODE","Scientific_name","geometry")]
 names(FAOlist)[names(FAOlist) == "Scientific_name"] <- "scientificName"
 names(FAOlist)[names(FAOlist) == "geometry"] <- "geometries"
-FAOlist<-FAOlist[-which(nchar(FAOlist$geometries)==0),]
+FAOlist<-FAOlist[-which(nchar(as.character(FAOlist$geometries))==0),]
 #cast geometries to ST objects
 FAOlist_SF<-st_as_sf(FAOlist,wkt="geometries")
 FAOlist_SF %>% st_cast()
@@ -529,7 +538,7 @@ for (sp_geom in fao_geometries){
   geomcounter<-geomcounter+1  
 }
 
-
+status(85)
 cat("\tIntersecting with OBIS\n")
 #get the really observed species in the bounding box
 speciesinbb="speciesobis.Rdata"
@@ -563,6 +572,7 @@ stocks_observed_df$is_threatened[which(stocks_observed %in% stocks_redlist)]<-T
 cat("Saving stock and ETP species information\n")
 write.csv(stocks_observed_df,file = gsub(".csv","_stocks_and_ETP_status.csv",outputTable),row.names = F)
 
+status(90)
 cat("Zipping output to",outputZip,"\n")
 files2zip <- dir(outputFolder, full.names = TRUE)
 zip(zipfile = outputZip, files = files2zip)
