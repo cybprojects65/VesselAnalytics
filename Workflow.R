@@ -529,10 +529,10 @@ geomcounter<-1
 #for each geometry, intersect it with the grid points
 for (sp_geom in fao_geometries){
   
-  intersection<-st_as_text(st_intersection(sp_geom,point_geometries))
+  intersection<-st_as_text(st_intersection(st_make_valid(sp_geom),point_geometries))
   #if the point falls in the geometry, annotate the stock as present in the fishing area
-  if (nchar(intersection)>0 && !grepl("EMPTY",intersection)){
-    stocks<-c(stocks, FAOlist_SF$scientificName[geomcounter])    
+  if (nchar(as.character(intersection))>0 && !grepl("EMPTY",intersection)){
+    stocks<-c(stocks, as.character(FAOlist_SF$scientificName[geomcounter])) 
     intersections<-c(intersections,intersection)
   }
   geomcounter<-geomcounter+1  
