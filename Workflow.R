@@ -124,7 +124,7 @@ dataVessel<-dataVessel[which(dataVessel$vesselid %in% intensively_fishing_vessel
 
 if (delete_harbours){
 cat("\tRemoving points too close to harbours\n")
-#harbors and ports taken from http://data.tools4msp.eu/layers/geonode:ports_harbor and exported into XY points with QGIS
+#harbors and ports taken from Marine Vessel Traffic and EMODNET
 ports<-read.csv("cleaned_ports_QGIS.csv")
 #out-harbor selection
 xycentroids_comp<-data.frame(dataVessel$xcentroid, dataVessel$ycentroid)
