@@ -25,8 +25,8 @@ status<-function(stat){
 }
 
 #input
-#inputTable<-"Med-region-5min-Fishing-vessels-2019_04_prepared.csv"
-inputTable<-"Med_AIS_2019_Levantine_prepared.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_01_prepared.csv"
+#inputTable<-"Med_AIS_2019_Levantine_prepared.csv"
 
 xcolumn<-"x"
 ycolumn<-"y"
