@@ -25,7 +25,9 @@ status<-function(stat){
 }
 
 #input
-inputTable<-"Med-region-5min-Fishing-vessels-2019_01_prepared.csv"
+#inputTable<-"Med-region-5min-Fishing-vessels-2019_04_prepared.csv"
+inputTable<-"Med_AIS_2019_Levantine_prepared.csv"
+
 xcolumn<-"x"
 ycolumn<-"y"
 speedcolumn<-"speed"
@@ -439,10 +441,24 @@ unreportedh<-unreported_cells[which(unreported_cells$totalh>u_hours[2]),]
 nx<-round(((max(unreportedh$x)-min(unreportedh$x))+1)/res_heatmap)
 ny<-round(((max(unreportedh$y)-min(unreportedh$y)+1))/res_heatmap)
 cat("Producing hotspots through kde2d\n")
+wx <- tryCatch(
+  {wx<-width.SJ(unreportedh$x)},
+  error=function(cond) {
+    cat("no exact solution for X bandwidth selection, trying approximate solution\n")
+    wx<-width.SJ(unreportedh$x,method="dpi")
+  }
+)
+wy <- tryCatch(
+  {wy<-width.SJ(unreportedh$y)},
+  error=function(cond) {
+    cat("no exact solution for Y bandwidth selection, trying approximate solution\n")
+    wy<-width.SJ(unreportedh$y,method="dpi")
+  }
+)
 k = kde2d(
   unreportedh[,1],
   unreportedh[,2], 
-  h=c(width.SJ(unreportedh$x), width.SJ(unreportedh$y) ), 
+  h=c(wx,wy), 
   n=c(nx,ny), 
   lims = c(c(min(unreportedh$x), max(unreportedh$x)), c(min(unreportedh$y), max(unreportedh$y))))
 
@@ -462,22 +478,28 @@ r_categorised[r_categorised < subdivision_size]<-NA
 r_categorised[ (
   (r_categorised>=subdivision_size) & 
     (r_categorised < (2*subdivision_size)))
-     ] <- 0
+     ] <- -9990
 r_categorised[ (
   (r_categorised>=(2*subdivision_size)) & 
     (r_categorised < (3*subdivision_size)))
-  ] <- 1
+  ] <- -9991
 r_categorised[ (
   (r_categorised>=(3*subdivision_size)) )
-] <- 2
+] <- -9992
+
+r_categorised[(r_categorised==-9990)] <- 0
+r_categorised[(r_categorised==-9991)] <- 1
+r_categorised[(r_categorised==-9992)] <- 2
+
 #plot(r_categorised)
 
 cat("Saving unreported activity hotspots\n")
 writeRaster(r_categorised,filename = gsub(".csv","_unreported_fishing_hotspots_categorised.tiff",outputTable),overwrite=T)
 status(80)
-##Stock and ETP species retrieval
 
+##Stock and ETP species retrieval
 cat("###Stock and ETP extraction\n")
+
 min_x_in_raster<-r@extent[1]
 max_x_in_raster<-r@extent[2]
 min_y_in_raster<-r@extent[3]
