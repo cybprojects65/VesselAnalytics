@@ -581,6 +581,11 @@ cat("\tSelecting the intersection of the species between the two datasources\n")
 speciesOBIS=speciesOBIS[speciesOBIS$marine=="TRUE",]
 #select only the observations in the last 30 years
 current_year<-as.numeric(format(Sys.Date(), "%Y"))
+
+#Test for studying occurrence abundance in OBIS - disabled
+#OBISSel<-speciesOBIS[speciesOBIS$scientificName%in%stocks_observed,]
+#OBISSel_count<-sqldf(paste0("select scientificName, count(scientificName) as count from OBISSel group by scientificName"),drv="SQLite")
+
 speciesOBIS<-speciesOBIS[which(!is.na(speciesOBIS$date_year) & (speciesOBIS$date_year>(current_year-30)) ),]
 #select the fao stocks present and observed in the area
 stocks_observed<-sort(stocks[which(stocks %in% unique(speciesOBIS$scientificName))])
