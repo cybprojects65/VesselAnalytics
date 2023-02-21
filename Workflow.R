@@ -35,7 +35,9 @@ vesselidcolumn<-"vesselid"
 datetimecolumn<-"datetime"
 low_speed_prior<-2
 high_speed_prior<-4
-
+#Options are: Dredges, Falling gear, Gillnets and entangling nets, Hooks and lines, Lift nets, Miscellaneous Gears, Seine nets, Surrounding nets, Traps, Trawls
+fishing_gear_category<-"Trawls"
+  
 #FIXED PARAMETERS
 delete_harbours<-T
 external_defined_classification<-F
@@ -505,7 +507,7 @@ max_x_in_raster<-r@extent[2]
 min_y_in_raster<-r@extent[3]
 max_y_in_raster<-r@extent[4]
 
-cat("\tTaking the highest hotspots\n")
+cat("\tTaking the most intense hotspots\n")
 resolution = res(r)[1]
 boundingbox = paste0("POLYGON ((",
                      min_x_in_raster," ",min_y_in_raster,", ",
@@ -523,15 +525,18 @@ grid_values<-raster::extract(x=r,y=grid_of_points,method='simple')
 grid_of_points$values<-grid_values
 if (length(which(is.na(grid_of_points$values)))>0)
   grid_of_points<-grid_of_points[-which(is.na(grid_of_points$values)),]
-#taking high hotspot points
+#taking the most intense hotspot points by excluding the values in the lower linear subdivisions
 grid_of_points_high_values<-grid_of_points[-which(grid_of_points$values<(3*subdivision_size) ),]
-cat("\tReading the GRSF\n")
+cat("\tReading and preparing the GRSF\n")
 #select the stocks with a geometry
-FAOlist<-read.delim("ASFIS_sp_2022_geom.txt",header=T,sep=",",encoding="UTF-8")
+FAO_file_for_gear_category<-paste0("ASFIS_sp_2022_geom_",fishing_gear_category,".txt")
+cat("\tRetrieving GRSF information from",FAO_file_for_gear_category,"\n")
+FAOlist<-read.delim(FAO_file_for_gear_category,header=T,sep=",",encoding="UTF-8")
 FAOlist<-FAOlist[,c("TAXOCODE","Scientific_name","geometry")]
 names(FAOlist)[names(FAOlist) == "Scientific_name"] <- "scientificName"
 names(FAOlist)[names(FAOlist) == "geometry"] <- "geometries"
 FAOlist<-FAOlist[-which(nchar(as.character(FAOlist$geometries))==0),]
+FAOlist<-FAOlist[-which(FAOlist$geometries=="MULTIPOLYGON()"),]
 #cast geometries to ST objects
 FAOlist_SF<-st_as_sf(FAOlist,wkt="geometries")
 FAOlist_SF %>% st_cast()
@@ -545,6 +550,7 @@ point_geometries<-st_as_sfc(grid_of_points_high_values$points_wkt)
 stocks<-c()
 intersections<-c()
 geomcounter<-1
+cat("\tExtracting stocks in the point grid\n")
 #for each geometry, intersect it with the grid points
 for (sp_geom in fao_geometries){
   
@@ -570,9 +576,12 @@ if (!file.exists(speciesinbb)){
   load(file = speciesinbb)
 }
 
-cat("\tSelecting the intersection of the specie between the two datasources\n")
+cat("\tSelecting the intersection of the species between the two datasources\n")
 #select the marine species in obis
 speciesOBIS=speciesOBIS[speciesOBIS$marine=="TRUE",]
+#select only the observations in the last 30 years
+current_year<-as.numeric(format(Sys.Date(), "%Y"))
+speciesOBIS<-speciesOBIS[which(!is.na(speciesOBIS$date_year) & (speciesOBIS$date_year>(current_year-30)) ),]
 #select the fao stocks present and observed in the area
 stocks_observed<-sort(stocks[which(stocks %in% unique(speciesOBIS$scientificName))])
 
