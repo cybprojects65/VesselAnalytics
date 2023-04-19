@@ -519,8 +519,6 @@ boundingbox = paste0("POLYGON ((",
                      "))")
 
 #build an x,y,value grid at the given resolution
-#xseq<-seq(from=min_x_in_raster,to=max_x_in_raster,by=resolution)
-#yseq<-seq(from=min_y_in_raster,to=max_y_in_raster,by=resolution)
 xseq<-seq(from=min_x_in_raster+(resolution/2),to=max_x_in_raster-(resolution/2),by=resolution)
 yseq<-seq(from=min_y_in_raster+(resolution/2),to=max_y_in_raster-(resolution/2),by=resolution)
 grid_of_points<-expand.grid(x = xseq, y = yseq)#combine the x and y coordinate to generate pairs
