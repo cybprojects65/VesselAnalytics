@@ -26,8 +26,8 @@ status<-function(stat){
 
 #input
 
-#inputTable<-"Med-region-5min-Fishing-vessels-2019_01_prepared.csv"
-inputTable<-"Med_AIS_2022_Alboran_prepared.csv"
+inputTable<-"Med-region-5min-Fishing-vessels-2019_01_prepared.csv"
+#inputTable<-"Med_AIS_2018_Alboran_prepared.csv"
 
 xcolumn<-"x"
 ycolumn<-"y"
@@ -509,7 +509,8 @@ min_y_in_raster<-r@extent[3]
 max_y_in_raster<-r@extent[4]
 
 cat("\tTaking the most intense hotspots\n")
-resolution = res(r)[1]
+#resolution = res(r)[1]
+resolution = min(res(r)[1],res(r)[2])
 boundingbox = paste0("POLYGON ((",
                      min_x_in_raster," ",min_y_in_raster,", ",
                      min_x_in_raster," ",max_y_in_raster,", ",
